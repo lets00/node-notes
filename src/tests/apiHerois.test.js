@@ -3,6 +3,12 @@ const api = require('./../api')
 
 
 let app;
+
+const MOCK_HEROI_CADASTRAR = {
+    nome: 'Chapolin',
+    poder: 'Marreta'
+}
+
 describe('Suíte de teste da API Herois',
     function() {
         this.beforeAll(async() => {
@@ -44,5 +50,14 @@ describe('Suíte de teste da API Herois',
             const dados = JSON.parse(result.payload)
             console.log(dados.length)
             assert.deepEqual(result.statusCode, 400)
+        })
+
+        it('cadastrar POST /herois', async() => {
+            const result = await app.inject({
+                method: 'POST',
+                url: '/herois',
+                payload: JSON.stringify(MOCK_HEROI_CADASTRAR)
+            })
+            assert.ok(result.statusCode === 201)
         })
     })

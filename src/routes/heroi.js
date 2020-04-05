@@ -40,6 +40,33 @@ class HeroiRoutes extends BaseRoute {
             }
         }
     }
+
+    create() {
+        return {
+            path: '/herois',
+            method: 'POST',
+            config: {
+                validate: {
+                    failAction: (req, res, fail) => {
+                        throw fail
+                    },
+                    payload: {
+                        nome: joi.string().required(),
+                        poder: joi.string().required()
+                    }
+                }
+            },
+            handler: async(request, h) => {
+                try {
+                    const { nome, poder } = request.payload
+                    const result = await this.db.create({ nome, poder })
+                    return h.response().code(201)
+                } catch (error) {
+                    console.log('DEU RUIM', error)
+                }
+            }
+        }
+    }
 }
 
 module.exports = HeroiRoutes
