@@ -9,10 +9,28 @@ const MOCK_HEROI_CADASTRAR = {
     poder: 'Marreta'
 }
 
+const MOCK_HEROI_INICIAL = {
+    nome: 'Gavião Negro',
+    poder: 'Mira'
+}
+
+let MOCK_ID
+
 describe('Suíte de teste da API Herois',
     function() {
         this.beforeAll(async() => {
             app = await api
+            await app.inject({
+                method: 'POST',
+                url: '/herois',
+                payload: JSON.stringify(MOCK_HEROI_INICIAL)
+            })
+            const result = await app.inject({
+                method: 'GET',
+                url: `/herois?limit=1&nome=${MOCK_HEROI_INICIAL.nome}`
+            })
+
+            MOCK_ID = JSON.parse(result.payload)[0]._id
         })
 
         it('listar /herois', async() => {
@@ -48,7 +66,6 @@ describe('Suíte de teste da API Herois',
             })
 
             const dados = JSON.parse(result.payload)
-            console.log(dados.length)
             assert.deepEqual(result.statusCode, 400)
         })
 
@@ -56,8 +73,21 @@ describe('Suíte de teste da API Herois',
             const result = await app.inject({
                 method: 'POST',
                 url: '/herois',
-                payload: JSON.stringify(MOCK_HEROI_CADASTRAR)
+                payload: MOCK_HEROI_CADASTRAR
             })
             assert.ok(result.statusCode === 201)
+        })
+
+        it('atualizar PATCH /herois/:id', async() => {
+            const dado = { poder: 'Super mira' }
+            const result = await app.inject({
+                method: 'PATCH',
+                url: `/herois/${MOCK_ID}`,
+                payload: dado
+            })
+            const statusCode = result.statusCode
+                // const dados = JSON.parse(result.payload)
+            assert.ok(result.statusCode === 200)
+                // assert.deepEqual()
         })
     })
