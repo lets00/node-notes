@@ -1,5 +1,5 @@
 const BaseRoute = require('./base/baseRoute')
-const joi = require('joi')
+const joi = require('@hapi/joi')
 
 class HeroiRoutes extends BaseRoute {
     constructor(db) {
@@ -11,17 +11,17 @@ class HeroiRoutes extends BaseRoute {
         return {
             path: '/herois',
             method: 'GET',
-            config: {
+            options: {
                 validate: {
                     // payload -> body
                     // headers -> header
                     // params -> ID na url
                     // query -> ?skip10
-                    query: {
+                    query: joi.object({
                         skip: joi.number().integer().default(0),
                         limit: joi.number().integer().default(10),
                         nome: joi.string().min(3).max(100)
-                    },
+                    }),
                     // Mostra qual foi o campo errado
                     failAction: (request, headers, erro) => {
                         throw erro
@@ -34,7 +34,6 @@ class HeroiRoutes extends BaseRoute {
                     const query = nome ? { nome } : {}
                     return this.db.read(query, skip, limit)
                 } catch (error) {
-                    console.log('DEU RUIM', error)
                     return "Erro interno no servidor"
                 }
             }
@@ -45,15 +44,15 @@ class HeroiRoutes extends BaseRoute {
         return {
             path: '/herois',
             method: 'POST',
-            config: {
+            options: {
                 validate: {
                     failAction: (req, res, fail) => {
                         throw fail
                     },
-                    payload: {
+                    payload: joi.object({
                         nome: joi.string().required(),
                         poder: joi.string().required()
-                    }
+                    })
                 }
             },
             handler: async(request, h) => {
@@ -62,7 +61,7 @@ class HeroiRoutes extends BaseRoute {
                     const result = await this.db.create({ nome, poder })
                     return h.response().code(201)
                 } catch (error) {
-                    console.log('DEU RUIM', error)
+                    return "Erro"
                 }
             }
         }
@@ -72,18 +71,18 @@ class HeroiRoutes extends BaseRoute {
         return {
             path: '/herois/{id}',
             method: 'PATCH',
-            config: {
+            options: {
                 validate: {
                     failAction: (req, res, err) => {
                         throw err
                     },
-                    params: {
+                    params: joi.object({
                         id: joi.string().required()
-                    },
-                    payload: {
+                    }),
+                    payload: joi.object({
                         nome: joi.string(),
                         poder: joi.string()
-                    }
+                    })
                 }
             },
             handler: async(request, h) => {
@@ -98,6 +97,31 @@ class HeroiRoutes extends BaseRoute {
                 } catch (error) {
                     return "ERRO interno"
                 }
+            }
+        }
+    }
+
+    delete() {
+        return {
+            path: '/herois/{id}',
+            method: 'DELETE',
+            options: {
+                validate: {
+                    params: {
+                        id: joi.string().required()
+                    }
+                }
+            },
+            handler: async(res, h) => {
+                try {
+                    const { id } = res.params
+                    const resultado = await this.db.delete(id)
+                    if (resultado.ok !== 1) return h.response().code(404)
+                    return h.response().code(200)
+                } catch (error) {
+                    console.error('DEU RUIM', error)
+                }
+
             }
         }
     }

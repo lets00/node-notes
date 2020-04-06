@@ -29,7 +29,6 @@ describe('Suíte de teste da API Herois',
                 method: 'GET',
                 url: `/herois?limit=1&nome=${MOCK_HEROI_INICIAL.nome}`
             })
-
             MOCK_ID = JSON.parse(result.payload)[0]._id
         })
 
@@ -85,9 +84,14 @@ describe('Suíte de teste da API Herois',
                 url: `/herois/${MOCK_ID}`,
                 payload: dado
             })
-            const statusCode = result.statusCode
-                // const dados = JSON.parse(result.payload)
             assert.ok(result.statusCode === 200)
-                // assert.deepEqual()
+        })
+
+        it('remover DELETE /herois/:id', async() => {
+            const result = await app.inject({
+                method: 'DELETE',
+                url: `/herois/${MOCK_ID}`
+            })
+            assert.ok(result.statusCode === 200)
         })
     })
