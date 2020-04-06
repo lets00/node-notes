@@ -10,6 +10,7 @@ const Vision = require('@hapi/vision');
 const HapiSwagger = require('hapi-swagger');
 
 const app = new Hapi.Server({
+    host: 'localhost',
     port: 8000
 })
 
@@ -40,10 +41,9 @@ async function main() {
 
     app.validator(joi)
     app.route(mapRoutes(new HeroiRoute(context), HeroiRoute.methods()))
-
-    return app
+    app.start()
+        // return app
 }
 
-module.exports = main()
-
-// main()
+// module.exports = main()
+main()
