@@ -1,6 +1,10 @@
 const BaseRoute = require('./base/baseRoute')
 const joi = require('@hapi/joi')
 
+const headers = joi.object({
+    authorization: joi.string().required()
+}).unknown()
+
 class HeroiRoutes extends BaseRoute {
     constructor(db) {
         super()
@@ -16,6 +20,7 @@ class HeroiRoutes extends BaseRoute {
                 description: 'Lista herois',
                 notes: 'Pagina resultado por nome',
                 validate: {
+                    headers,
                     // payload -> body
                     // headers -> header
                     // params -> ID na url
@@ -55,6 +60,7 @@ class HeroiRoutes extends BaseRoute {
                     failAction: (req, res, fail) => {
                         throw fail
                     },
+                    headers,
                     payload: joi.object({
                         nome: joi.string().required(),
                         poder: joi.string().required()
@@ -119,6 +125,7 @@ class HeroiRoutes extends BaseRoute {
                 description: 'Deleta herois',
                 notes: 'Remove herói por ID.',
                 validate: {
+                    headers,
                     params: {
                         id: joi.string().required()
                     }
